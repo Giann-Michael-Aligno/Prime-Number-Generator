@@ -1,0 +1,75 @@
+import random
+
+
+def is_prime(n, k=5):
+    """
+    Performs the Miller-Rabin primality test to determine if a number is likely prime.
+
+    Args:
+        n (int): The number to test for primality.
+        k (int): The number of test iterations. A higher number increases certainty.
+
+    Returns:
+        bool: True if n is likely prime, False otherwise.
+    """
+    if n < 2:
+        return False
+    if n == 2 or n == 3:
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+
+    # Write n-1 as 2^s * d
+    s = 0
+    d = n - 1
+    while d % 2 == 0:
+        s += 1
+        d //= 2
+
+    # Perform k test iterations
+    for _ in range(k):
+        a = random.randint(2, n - 2)
+        x = pow(a, d, n)
+        if x == 1 or x == n - 1:
+            continue
+        for _ in range(s - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
+            return False
+    return True
+
+
+def generate_large_prime(num_digits):
+    """
+    Generates a prime number with a specified number of digits.
+
+    Args:
+        num_digits (int): The desired number of digits.
+
+    Returns:
+        int: A large prime number.
+    """
+    # Start with a random odd number of the desired length
+    lower_bound = 10 ** (num_digits - 1)
+    upper_bound = 10 ** num_digits - 1
+
+    # We want to increase the likelihood of finding a prime,
+    # so we start with a number that doesn't have small prime factors
+    start_num = random.randrange(lower_bound + 1, upper_bound, 2)
+
+    # Search for the next prime number
+    candidate = start_num
+    while True:
+        if is_prime(candidate):
+            return candidate
+        candidate += 2
+
+
+# Generate and print an n-digit prime number
+num_digits = int(input("How many digits?: "))
+prime_number = generate_large_prime(num_digits)
+print(f"A {num_digits}-digit prime number is:")
+print(prime_number)
+print(f"The number of digits is: {len(str(prime_number))}")
